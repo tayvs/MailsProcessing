@@ -5,7 +5,7 @@ import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, OverflowStrategy}
 import akka.stream.scaladsl.{Keep, Sink, Source}
 import com.github.tototoshi.csv.CSVParser
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.{ConfigFactory}
 import reactivemongo.bson.{BSONDocumentHandler, Macros}
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global

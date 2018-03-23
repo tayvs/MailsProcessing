@@ -1,0 +1,19 @@
+# Created by .ignore support plugin (hsz.mobi)
+### Example user template template
+### Example user template
+
+# IntelliJ project files
+.idea
+*.iml
+out
+gen### Scala template
+*.class
+*.log
+
+.idea/
+project/target/
+src/main/resources/Mailable_2017_new_oth_20170807_US_9.csv
+src/main/resources/Mailable_2017_new_oth_20170807_US_New.csv
+src/main/scala/org/emis/tayvs/spam/
+src/test/
+target/
