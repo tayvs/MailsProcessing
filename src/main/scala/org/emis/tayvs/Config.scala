@@ -1,5 +1,9 @@
 package org.emis.tayvs
 
-object Config {
+import com.typesafe.config.ConfigFactory
+
+object Config extends App {
   
+  println(ConfigFactory.load().getConfig("app").getString("myHOmeDir"))
+
 }
