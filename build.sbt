@@ -4,6 +4,8 @@ version := "0.1"
 
 scalaVersion := "2.12.4"
 
+//addSbtPlugin("com.triplequote" % "sbt-hydra" % "<version>")
+
 libraryDependencies ++= {
   
   val akkaV = "2.4.17"
@@ -15,6 +17,9 @@ libraryDependencies ++= {
     "com.typesafe.akka"      %% "akka-actor"              % akkaV,
     "com.typesafe.akka"      %% "akka-remote"             % akkaV,
     "com.typesafe.akka"      %% "akka-stream"             % akkaV,
+  
+    "com.typesafe.akka"      %% "akka-stream-kafka"       % "0.19",
+    
 //    "com.typesafe.akka"      %% "akka-http"               % "10.0.11",
 //    "com.typesafe.akka"      %% "akka-http-spray-json"    % "10.0.11",
     "org.scalaj"             %% "scalaj-http"             % "2.3.0",

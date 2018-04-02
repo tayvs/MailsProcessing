@@ -33,8 +33,9 @@
     <logger name="akka._" level="DEBUG"/>
     <logger name="reactivemongo" level="INFO"/>
     <logger name="reactivemongo._" level="INFO"/>
+    <logger name="KafkaConsumer" level="INFO"/>
 
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
     </root>
