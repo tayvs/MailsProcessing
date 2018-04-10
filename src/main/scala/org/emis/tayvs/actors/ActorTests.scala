@@ -1,8 +1,8 @@
 package org.emis.tayvs.actors
 
 import akka.actor.SupervisorStrategy._
-import akka.actor.{Actor, ActorLogging, ActorSystem, Cancellable, OneForOneStrategy, Props, SupervisorStrategy,
-  Terminated}
+import akka.actor.{Actor, ActorLogging, ActorSystem, Cancellable, DiagnosticActorLogging, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
+import akka.event.Logging.MDC
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration._
 
@@ -25,7 +25,9 @@ object ActorTests extends App {
     }
   }
   
-  class SupStratagyTest extends Actor with ActorLogging {
+  class SupStratagyTest extends Actor with DiagnosticActorLogging {
+  
+    override def mdc(currentMessage: Any): MDC = Map("strategy" -> "SupStratagyTest")
     
     implicit val ex: ExecutionContextExecutor = context.dispatcher
     val sch: Cancellable = context.system.scheduler.schedule(0 second, 1 second, self, "")

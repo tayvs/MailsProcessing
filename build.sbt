@@ -4,8 +4,6 @@ version := "0.1"
 
 scalaVersion := "2.12.4"
 
-//addSbtPlugin("com.triplequote" % "sbt-hydra" % "<version>")
-
 libraryDependencies ++= {
   
   val akkaV = "2.4.17"
@@ -18,6 +16,10 @@ libraryDependencies ++= {
     "com.typesafe.akka"      %% "akka-remote"             % akkaV,
     "com.typesafe.akka"      %% "akka-stream"             % akkaV,
   
+    "com.typesafe.akka"      %% "akka-persistence"        % akkaV,
+    "org.iq80.leveldb"            % "leveldb"             % "0.7",
+    "org.fusesource.leveldbjni"   % "leveldbjni-all"      % "1.8",
+  
     "com.typesafe.akka"      %% "akka-stream-kafka"       % "0.19",
     
 //    "com.typesafe.akka"      %% "akka-http"               % "10.0.11",
@@ -28,6 +30,10 @@ libraryDependencies ++= {
   
     "javax.mail"             % "mail"                     % "1.4.7",
   
-    "ch.qos.logback"         % "logback-classic"          % "1.2.3"
+    "ch.qos.logback"         % "logback-classic"          % "1.2.3",
+    "com.typesafe.akka"      %% "akka-slf4j"              % "2.4.17"
   )
+  
+//  enablePlugins(JmhPlugin)
+
 }

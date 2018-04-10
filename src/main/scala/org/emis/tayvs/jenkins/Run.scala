@@ -2,7 +2,7 @@ package org.emis.tayvs.jenkins
 
 import scalaj.http.Http
 
-object Run extends App {
+object Run  {
   
   val jenkinsHost = "http://10.34.0.29:8080"
   

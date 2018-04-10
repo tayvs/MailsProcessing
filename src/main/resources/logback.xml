@@ -5,15 +5,15 @@
         <target>System.out</target>
         <encoder>
             <pattern>
-                %date{yyyy-MM-dd HH:mm:ss} %-5level %logger{0} %msg in [%thread]%n
+                [%-5level] %date{[yyyy-MM-dd HH:mm:ss.SSS]} [%X{akkaSource}] [%logger{0}] %msg in [%thread]%n
             </pattern>
         </encoder>
     </appender>
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/var/log/$SERVICE_NAME/$SERVICE_NAME.log</file>
+        <file>C:/Projects/CSV2Mongo/log/csv.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>/var/log/$SERVICE_NAME/$SERVICE_NAME-%d{yyyy-MM-dd}.%i.zip</fileNamePattern>
+            <fileNamePattern>C:/Projects/CSV2Mongo/log/-%d{yyyy-MM-dd}.%i.zip</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>100MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
@@ -22,10 +22,37 @@
         </rollingPolicy>
         <encoder>
             <pattern>
-                %date{yyyy-MM-dd HH:mm:ss} %-5level %logger{0} %msg in [%thread]%n
+                [%-5level] %date{[yyyy-MM-dd HH:mm:ss.SSS]} [%X{akkaSource}] [%logger{0}] %msg in [%thread]%n
+                <!--%date{yyyy-MM-dd HH:mm:ss} %-5level %logger{0} %msg in [%thread]%n-->
             </pattern>
         </encoder>
 
+    </appender>
+
+    <appender name="JobLogFile" class="ch.qos.logback.classic.sift.SiftingAppender">
+        <discriminator>
+            <key>strategy</key>
+            <defaultValue>strategy</defaultValue>
+        </discriminator>
+        <sift>
+            <appender name="FILE-${strategy}" class="ch.qos.logback.core.rolling.RollingFileAppender">
+                <file>C:/Projects/CSV2Mongo/log/${strategy}.log</file>
+                <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                    <fileNamePattern>
+                        C:/Projects/CSV2Mongo/log/${strategy}-%d{yyyy-MM-dd}.%i.zip
+                    </fileNamePattern>
+                    <maxFileSize>20MB</maxFileSize>
+                    <maxHistory>10</maxHistory>
+                    <totalSizeCap>5GB</totalSizeCap>
+                </rollingPolicy>
+                <encoder>
+                    <pattern>
+                        [%-5level] %date{[yyyy-MM-dd HH:mm:ss.SSS]} [%X{akkaSource}] [%logger{0}] %msg in [%thread]%n
+                    </pattern>
+                </encoder>
+
+            </appender>
+        </sift>
     </appender>
 
 
@@ -35,9 +62,10 @@
     <logger name="reactivemongo._" level="INFO"/>
     <logger name="KafkaConsumer" level="INFO"/>
 
-    <root level="INFO">
+    <root level="DEBUG">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
+        <appender-ref ref="JobLogFile"/>
     </root>
 
 </configuration>
