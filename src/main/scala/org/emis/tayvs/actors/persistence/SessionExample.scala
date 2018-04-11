@@ -3,11 +3,12 @@ package org.emis.tayvs.actors.persistence
 import akka.actor.ActorRef
 import akka.persistence.{PersistentActor, SnapshotOffer}
 
-import org.emis.tayvs.actors.persistence.SessionExample.SessionSupervisor._
+
 
 object SessionExample extends App {
   
   class SessionSupervisor extends PersistentActor with SessionManager {
+    import org.emis.tayvs.actors.persistence.SessionExample.SessionSupervisor._
     override def persistenceId: String = self.path.name
     
     var sessionList: Map[Symbol, ((Seq[String], Int))] = Map.empty
@@ -19,11 +20,11 @@ object SessionExample extends App {
     
     override def receiveCommand: Receive = {
       
-      case Login(login) => getSession(login)
-        .foreach(sessionInfo => self ! CreateSession(login, sessionInfo))
-      
-      case CreateSession(login, sessionInfo) =>
+      case Login(login) => sender ! getSession(login)
+        .fold[Any](new Exception("User not found")) { sessionInfo =>
         persist(SessionCreated(Symbol(login), sessionInfo))(updateState)
+        sessionInfo
+      }
 
       case Logout(login) => ???
       
@@ -31,7 +32,7 @@ object SessionExample extends App {
     }
     
     def updateState(ev: Event): Unit = ev match {
-      case CreateSession(login, sessionInfo) => sessionList + (Symbol(login) -> sessionInfo)
+      case SessionCreated(login, sessionInfo, _) => sessionList + (login -> sessionInfo)
     }
   }
   
