@@ -8,7 +8,7 @@ import akka.stream.scaladsl.Sink
 import com.typesafe.config.ConfigFactory
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.TopicPartition
-import org.apache.kafka.common.serialization.{ByteArrayDeserializer, Deserializer, StringDeserializer}
+import org.apache.kafka.common.serialization.{ByteArrayDeserializer, Deserializer, StringDeserializer, StringSerializer}
 
 object CustomerActionConsumer extends App {
   
@@ -20,7 +20,7 @@ object CustomerActionConsumer extends App {
   
   val customerActionsTopic = "customerAction"
   
-  val consumerSettings = ConsumerSettings(system, new ByteArrayDeserializer, new StringDeserializer)
+  val consumerSettings = ConsumerSettings(system, new StringDeserializer, new StringDeserializer)
     .withBootstrapServers("localhost:9092")
     .withGroupId("group1")
     .withProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
