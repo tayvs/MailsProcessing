@@ -8,10 +8,12 @@ import org.apache.avro.Schema
 object AvroSerialization extends App {
 
   sealed trait CustomerAction
-  case class Click(link: String, customer: String = "avatar") extends CustomerAction
+  case class Click(link: String, customer: String = "avatar", time: Long = Long.MaxValue) extends CustomerAction
   case class ShowImg(link: String, customer: String = "avatar") extends CustomerAction
   case class DownloadFile(fileSource: String, customer: String = "avatar") extends CustomerAction
 
+  case class Link(link: String)
+  
   val caSchema: Schema = AvroSchema[Click]
   println(caSchema.toString(true))
 
@@ -19,22 +21,19 @@ object AvroSerialization extends App {
 
   val bytes = AvroSerializator.write(ca)
   val deserCA = AvroSerializator.read[Click](bytes)
+  val link = AvroSerializator.read[Link](bytes)
   
-  ("someKey", bytes) match {
+  ("click", bytes) match {
     case ("click", bytes) => AvroSerializator.read[Click](bytes)
     case ("showImg", bytes) => AvroSerializator.read[ShowImg](bytes)
-    case ("DownloadFile", bytes) => AvroSerializator.read[DownloadFile](bytes)
+    case ("downloadFile", bytes) => AvroSerializator.read[DownloadFile](bytes)
   }
   
   println(ca)
   println(deserCA)
   println(ca == deserCA)
-
-}
-
-object AvroSerializatorWithMatching {
-
-
+  
+  println(link)
 
 }
 

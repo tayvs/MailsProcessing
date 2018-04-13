@@ -28,11 +28,11 @@ object CustomerActionConsumer extends App {
   Consumer
     .committableSource(
       consumerSettings,
-//      Subscriptions.assignmentWithOffset(new TopicPartition(customerActionsTopic, 0) -> 0L)
-      Subscriptions.topics(customerActionsTopic)
+      Subscriptions.assignmentWithOffset(new TopicPartition(customerActionsTopic, 0) -> 0L)
+//      Subscriptions.topics(customerActionsTopic)
     )
     .map { record =>
-      println(record.record.value)
+      println(record.record/*.value*/)
       record.committableOffset.commitScaladsl()
     }
     .runWith(Sink.ignore)
