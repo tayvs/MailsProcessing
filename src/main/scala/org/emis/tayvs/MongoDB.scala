@@ -16,13 +16,14 @@ class MongoDB(collName: String) {
   
   def bulkInsert[T](entities: Traversable[T])(implicit bsonDocWriter: BSONDocumentWriter[T]): Future[MultiBulkWriteResult] =
     mailsCollection
-      .bulkInsert(ordered = false)(entities.toStream.map(implicitly[mailsCollection.ImplicitlyDocumentProducer](_)): _*)
+        .insert(false)
+        .many(entities.toIterable)
   
   def insert[T](entity: T)(implicit bSONDocumentWriter: BSONDocumentWriter[T]): Future[WriteResult] =
     mailsCollection
       .insert(entity)
   
-  def getByDomain[T](domain: String)(implicit bSONDocumentReader: BSONDocumentReader[T]): Future[List[T]] =
+  def getByDomain[T: BSONDocumentReader](domain: String): Future[List[T]] =
     mailsCollection
       .find(BSONDocument("domain" -> domain))
       .cursor[T]()

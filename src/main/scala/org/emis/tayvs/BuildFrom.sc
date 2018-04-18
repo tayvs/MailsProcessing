@@ -1,11 +1,15 @@
-import scala.util.{Failure, Try}
-Try("sds") match {
-  case FailureEx(ex) => 2
-  case Failure(th) => 1
-  case _ => 3
-}
+import com.sksamuel.avro4s.AvroSchema
+import org.apache.avro.Schema
 
-object FailureEx {
-  def unapply[T](arg: Try[T]): Option[Exception] =
-    Option(arg).collect { case Failure(ex: Exception) => ex }
-}
+sealed trait CustomerAction
+case class Click(link: String, customer: String = "avatar", time: Long = Long.MaxValue) extends CustomerAction
+case class ShowImg(link: String, customer: String = "avatar") extends CustomerAction
+case class DownloadFile(fileSource: String, customer: String = "avatar") extends CustomerAction
+
+val schema = AvroSchema[CustomerAction]
+schema.toString(true)
+
+Schema
+  .createUnion(AvroSchema[Click], AvroSchema[DownloadFile], AvroSchema[ShowImg])
+  .toString(true)
+

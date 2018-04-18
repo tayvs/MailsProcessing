@@ -4,20 +4,28 @@ version := "0.1"
 
 scalaVersion := "2.12.5"
 scalacOptions ++= Seq(
-//  "-Ylog:jvm",
   "-target:jvm-1.8",
+  "-Xfuture",
 
-//  "-optimise",
-//  "-opt:l:method",
-//  "-Ybackend-parallelism:4",
+  "-optimize",
+  "-opt:l:method",
   "-Ycache-plugin-class-loader:last-modified",
   "-Ycache-macro-class-loader:last-modified"
 )
 
-//(scalacOptions in Build).map ::= Seq(
-//    "-optimise",
-//    "-opt:l:method"
+//todo:
+//scalacOptions ++= Seq(
+//  "-Yinduction-heuristics",       // speeds up the compilation of inductive implicit resolution
+//  "-Ykind-polymorphism",          // type and method definitions with type parameters of arbitrary kinds
+//  "-Yliteral-types",              // literals can appear in type position
+//  "-Xstrict-patmat-analysis",     // more accurate reporting of failures of match exhaustivity
+//  "-Xlint:strict-unsealed-patmat" // warn on inexhaustive matches against unsealed traits
 //)
+//
+//inThisBuild(Seq(
+//  scalaOrganization := "org.typelevel",
+//  scalaVersion      := "2.12.4-bin-typelevel-4"
+//))
 
 libraryDependencies ++= {
   
@@ -26,7 +34,7 @@ libraryDependencies ++= {
   Seq(
     //reactiveMongo - MongoDB
     "org.reactivemongo"      %% "reactivemongo"           % "0.13.0",
-    "org.reactivemongo"      %% "reactivemongo-akkastream"% "0.13.0",
+//    "org.reactivemongo"      %% "reactivemongo-akkastream"% "0.13.0",
     //Avro serialisator
 //    "org.apache.avro"        % "avro"                     % "1.8.3",
     "com.sksamuel.avro4s"    %% "avro4s-core"             % "1.8.3",
@@ -52,7 +60,5 @@ libraryDependencies ++= {
     "ch.qos.logback"         % "logback-classic"          % "1.2.3",
     "com.typesafe.akka"      %% "akka-slf4j"              % akkaV
   )
-  
-//  enablePlugins(JmhPlugin)
 
 }
