@@ -4,8 +4,9 @@ import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.filter.Filter
 import ch.qos.logback.core.spi.FilterReply
 
-class LoggingFilter extends Filter[ILoggingEvent] {
-  override def decide(event: ILoggingEvent): FilterReply =
-    if (event.getLoggerName.endsWith("Ping")) FilterReply.ACCEPT
+class ErrorLoggingFilter extends Filter[ILoggingEvent] {
+  override def decide(event: ILoggingEvent): FilterReply = {
+    if (Option(event.getThrowableProxy).isDefined) FilterReply.ACCEPT
     else FilterReply.DENY
+  }
 }

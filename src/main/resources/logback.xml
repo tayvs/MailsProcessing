@@ -1,6 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true" period="10 seconds">
 
+    <appender name="PingSTDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="org.emis.tayvs.actors.MDCLogging.LoggingFilter" />
+        <encoder>
+            <pattern>
+                [%-5level] %date{[yyyy-MM-dd HH:mm:ss.SSS]} [%X{akkaSource}] %msg %n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <appender name="ErrorSTDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="org.emis.tayvs.actors.MDCLogging.ErrorLoggingFilter" />
+        <encoder>
+            <pattern>
+                %date{[yyyy-MM-dd HH:mm:ss.SSS]} Exception %msg %n
+            </pattern>
+        </encoder>
+    </appender>
+
+
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <target>System.out</target>
         <encoder>
@@ -66,6 +85,8 @@
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
         <appender-ref ref="JobLogFile"/>
+        <appender-ref ref="PingSTDOUT"/>
+        <appender-ref ref="ErrorSTDOUT"/>
     </root>
 
 </configuration>
