@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration scan="true" period="10 seconds">
+<configuration scan="true" scanPeriod="10 seconds">
+
+    <property name="logDir" value="C:/Projects/CSV2Mongo/log/" />
 
     <appender name="PingSTDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <filter class="org.emis.tayvs.actors.MDCLogging.LoggingFilter" />
@@ -20,7 +22,7 @@
     </appender>
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <file>C:/Projects/CSV2Mongo/log/ping.log</file>
+        <file>${logDir}ping.log</file>
         <target>System.out</target>
         <encoder>
             <pattern>
@@ -30,9 +32,9 @@
     </appender>
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>C:/Projects/CSV2Mongo/log/csv.log</file>
+        <file>${logDir}csv.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>C:/Projects/CSV2Mongo/log/-%d{yyyy-MM-dd}.%i.zip</fileNamePattern>
+            <fileNamePattern>${logDir}-%d{yyyy-MM-dd}.%i.zip</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>100MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
@@ -54,10 +56,10 @@
         </discriminator>
         <sift>
             <appender name="FILE-${strategy}" class="ch.qos.logback.core.rolling.RollingFileAppender">
-                <file>C:/Projects/CSV2Mongo/log/${strategy}.log</file>
+                <file>${logDir}${strategy}.log</file>
                 <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
                     <fileNamePattern>
-                        C:/Projects/CSV2Mongo/log/${strategy}-%d{yyyy-MM-dd}.%i.zip
+                        ${logDir}${strategy}-%d{yyyy-MM-dd}.%i.zip
                     </fileNamePattern>
                     <maxFileSize>20MB</maxFileSize>
                     <maxHistory>10</maxHistory>
