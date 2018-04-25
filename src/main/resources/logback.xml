@@ -10,7 +10,7 @@
         </encoder>
     </appender>
 
-    <appender name="ErrorSTDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="ExceptionsFile" class="ch.qos.logback.core.FileAppender">
         <filter class="org.emis.tayvs.actors.MDCLogging.ErrorLoggingFilter" />
         <encoder>
             <pattern>
@@ -19,8 +19,8 @@
         </encoder>
     </appender>
 
-
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <file>C:/Projects/CSV2Mongo/log/ping.log</file>
         <target>System.out</target>
         <encoder>
             <pattern>
@@ -42,13 +42,12 @@
         <encoder>
             <pattern>
                 [%-5level] %date{[yyyy-MM-dd HH:mm:ss.SSS]} [%X{akkaSource}] [%logger{0}] %msg in [%thread]%n
-                <!--%date{yyyy-MM-dd HH:mm:ss} %-5level %logger{0} %msg in [%thread]%n-->
             </pattern>
         </encoder>
-
     </appender>
 
-    <appender name="JobLogFile" class="ch.qos.logback.classic.sift.SiftingAppender">
+    <appender name="StrategyLogFile" class="ch.qos.logback.classic.sift.SiftingAppender">
+        <filter class="org.emis.tayvs.actors.MDCLogging.MDCStrategyFilter" />
         <discriminator>
             <key>strategy</key>
             <defaultValue>strategy</defaultValue>
@@ -66,10 +65,9 @@
                 </rollingPolicy>
                 <encoder>
                     <pattern>
-                        [%-5level] %date{[yyyy-MM-dd HH:mm:ss.SSS]} [%X{akkaSource}] [%logger{0}] %msg in [%thread]%n
+                        [%-5level] %date{[yyyy-MM-dd HH:mm:ss.SSS]} [%X{akkaSource}] %X{strategy} %msg%n
                     </pattern>
                 </encoder>
-
             </appender>
         </sift>
     </appender>
@@ -84,9 +82,9 @@
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
-        <appender-ref ref="JobLogFile"/>
+        <appender-ref ref="StrategyLogFile"/>
         <appender-ref ref="PingSTDOUT"/>
-        <appender-ref ref="ErrorSTDOUT"/>
+        <appender-ref ref="ExceptionsFile"/>
     </root>
 
 </configuration>
