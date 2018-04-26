@@ -41,8 +41,9 @@ object ActorTests extends App {
     override def receive: Receive = {
       case "ping" => log.warning("ping")
       case _ =>
-        println("Exception throwned")
-        throw new Exception("Exception thrown")
+        val ex = new Exception("Exception thrown")
+        log.error(ex, "Exception thrown")
+        throw ex
     }
     
   }
@@ -55,6 +56,6 @@ object ActorTests extends App {
     system.actorOf(Props[SupStratagyTest], "strategy3")
   )
   
-//  strategy.foreach(_ ! "ping")
+//  strategy.foreach(_ ! "other")
 
 }

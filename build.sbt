@@ -58,7 +58,8 @@ libraryDependencies ++= {
     "javax.mail"             % "mail"                     % "1.4.7",
     //logging
     "ch.qos.logback"         % "logback-classic"          % "1.2.3",
-    "com.typesafe.akka"      %% "akka-slf4j"              % akkaV
+    "com.typesafe.akka"      %% "akka-slf4j"              % akkaV,
+    "org.codehaus.janino"    %  "janino"                  % "2.7.8"
   )
 
 }

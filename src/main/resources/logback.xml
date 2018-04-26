@@ -14,6 +14,7 @@
 
     <appender name="ExceptionsFile" class="ch.qos.logback.core.FileAppender">
         <filter class="org.emis.tayvs.actors.MDCLogging.ErrorLoggingFilter" />
+        <file>${logDir}exceptions.log</file>
         <encoder>
             <pattern>
                 %date{[yyyy-MM-dd HH:mm:ss.SSS]} Exception %msg %n
@@ -49,7 +50,14 @@
     </appender>
 
     <appender name="StrategyLogFile" class="ch.qos.logback.classic.sift.SiftingAppender">
-        <filter class="org.emis.tayvs.actors.MDCLogging.MDCStrategyFilter" />
+        <!--<filter class="org.emis.tayvs.actors.MDCLogging.MDCStrategyFilter" />-->
+        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+            <evaluator> <!-- defaults to type ch.qos.logback.classic.boolex.JaninoEventEvaluator -->
+                <expression>return mdc.contains("strategy");</expression>
+            </evaluator>
+            <OnMatch>ACCEPT</OnMatch>
+            <OnMismatch>DENY</OnMismatch>
+        </filter>
         <discriminator>
             <key>strategy</key>
             <defaultValue>strategy</defaultValue>
