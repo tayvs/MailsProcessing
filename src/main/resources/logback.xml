@@ -53,7 +53,7 @@
         <!--<filter class="org.emis.tayvs.actors.MDCLogging.MDCStrategyFilter" />-->
         <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
             <evaluator> <!-- defaults to type ch.qos.logback.classic.boolex.JaninoEventEvaluator -->
-                <expression>return mdc.contains("strategy");</expression>
+                <expression>return mdc.containsKey("strategy");</expression>
             </evaluator>
             <OnMatch>ACCEPT</OnMatch>
             <OnMismatch>DENY</OnMismatch>
@@ -82,6 +82,38 @@
         </sift>
     </appender>
 
+    <appender name="DoubleMDC" class="ch.qos.logback.classic.sift.SiftingAppender">
+        <!--<filter class="org.emis.tayvs.actors.MDCLogging.MDCStrategyFilter" />-->
+        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+            <evaluator> <!-- defaults to type ch.qos.logback.classic.boolex.JaninoEventEvaluator -->
+                <expression>return mdc.containsKey("num") &amp;&amp; mdc.containsKey("strategy");</expression>
+            </evaluator>
+            <OnMatch>ACCEPT</OnMatch>
+            <OnMismatch>DENY</OnMismatch>
+        </filter>
+        <discriminator class="org.emis.tayvs.actors.MDCLogging.CustomDoubleDiscriminator">
+            <key>strategyAndNum</key>
+            <defaultValue>unknownStrategyAndNum</defaultValue>
+        </discriminator>
+        <sift>
+            <appender name="DoubleMDC-${strategyAndNum}" class="ch.qos.logback.core.rolling.RollingFileAppender">
+                <file>${logDir}${strategyAndNum}.log</file>
+                <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                    <fileNamePattern>
+                        ${logDir}${strategyAndNum}-%d{yyyy-MM-dd}.%i.zip
+                    </fileNamePattern>
+                    <maxFileSize>20MB</maxFileSize>
+                    <maxHistory>10</maxHistory>
+                    <totalSizeCap>5GB</totalSizeCap>
+                </rollingPolicy>
+                <encoder>
+                    <pattern>
+                        [%-5level] %date{[yyyy-MM-dd HH:mm:ss.SSS]} [%X{akkaSource}] %X{strategy} %msg%n
+                    </pattern>
+                </encoder>
+            </appender>
+        </sift>
+    </appender>
 
     <logger name="akka" level="DEBUG"/>
     <logger name="akka._" level="DEBUG"/>
@@ -95,6 +127,7 @@
         <appender-ref ref="StrategyLogFile"/>
         <appender-ref ref="PingSTDOUT"/>
         <appender-ref ref="ExceptionsFile"/>
+        <appender-ref ref="DoubleMDC"/>
     </root>
 
 </configuration>

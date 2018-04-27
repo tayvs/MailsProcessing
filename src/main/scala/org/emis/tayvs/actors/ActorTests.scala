@@ -1,8 +1,10 @@
 package org.emis.tayvs.actors
 
 import akka.actor.SupervisorStrategy._
-import akka.actor.{Actor, ActorLogging, ActorSystem, Cancellable, DiagnosticActorLogging, OneForOneStrategy, Props,
-  SupervisorStrategy, Terminated}
+import akka.actor.{
+  Actor, ActorLogging, ActorSystem, Cancellable, DiagnosticActorLogging, OneForOneStrategy, Props,
+  SupervisorStrategy, Terminated
+}
 import akka.event.Logging.MDC
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration._
@@ -28,7 +30,10 @@ object ActorTests extends App {
   
   class SupStratagyTest extends Actor with DiagnosticActorLogging {
     
-    override def mdc(currentMessage: Any): MDC = Map("strategy" -> self.path.name)
+    override def mdc(currentMessage: Any): MDC = Map(
+      "strategy" -> self.path.name,
+      "num" -> self.path.name.takeRight(1)
+    )
     
     implicit val ex: ExecutionContextExecutor = context.dispatcher
     val sch: Cancellable = context.system.scheduler.schedule(0 second, 1 second, self, "ping")
@@ -55,7 +60,7 @@ object ActorTests extends App {
     system.actorOf(Props[SupStratagyTest], "strategy2"),
     system.actorOf(Props[SupStratagyTest], "strategy3")
   )
-  
+
 //  strategy.foreach(_ ! "other")
 
 }
