@@ -23,7 +23,7 @@
     </appender>
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <file>${logDir}ping.log</file>
+        <!--<file>${logDir}ping.log</file>-->
         <target>System.out</target>
         <encoder>
             <pattern>

@@ -36,9 +36,7 @@ object CSV2Mongo extends App {
     ))
     .collect { case Some(v) => v }
     .grouped(10000)
-    .mapAsyncUnordered(2) { ent =>
-      db.bulkInsert(ent).andThen { case Failure(ex) => ex.printStackTrace() }
-    }
+    .mapAsyncUnordered(2) {db.bulkInsert(_).andThen { case Failure(ex) => ex.printStackTrace() }}
     .toMat(Sink.foreach(el => println(s"${System.currentTimeMillis()} $el")))(Keep.right)
     .run()
     .foreach(println)

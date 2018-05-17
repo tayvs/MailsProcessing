@@ -13,7 +13,7 @@ object ProducerPilot extends App {
   implicit val system = ActorSystem("kafka_producer_test")
   implicit val mat = ActorMaterializer()
   
-  val producerSettings = ProducerSettings(system, new ByteArraySerializer, new StringSerializer)
+  val producerSettings: ProducerSettings[Array[Byte], String] = ProducerSettings(system, new ByteArraySerializer, new StringSerializer)
     .withBootstrapServers("localhost:9092")
   
   val done = Source(1 to 10)

@@ -34,7 +34,7 @@ libraryDependencies ++= {
   Seq(
     //reactiveMongo - MongoDB
     "org.reactivemongo"      %% "reactivemongo"           % "0.13.0",
-//    "org.reactivemongo"      %% "reactivemongo-akkastream"% "0.13.0",
+    "org.reactivemongo"      %% "reactivemongo-akkastream"% "0.13.0",
     //Avro serialisator
 //    "org.apache.avro"        % "avro"                     % "1.8.3",
     "com.sksamuel.avro4s"    %% "avro4s-core"             % "1.8.3",
