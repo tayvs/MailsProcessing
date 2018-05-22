@@ -9,6 +9,9 @@ import java.util.Hashtable;
 
 public class MXLookupSample {
     public static void main(String args[]) {
+        args[0] = "google.com";
+        args[1] = "http://google.com";
+        args[2] = "https://google.com";
         if (args.length == 0) {
             System.err.println("Usage: MXLookup host [...]");
             System.exit(99);

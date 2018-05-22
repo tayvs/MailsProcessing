@@ -33,7 +33,7 @@ class MongoDB(collName: String) {
     coll
       .update(
         selector = BSONDocument(key),
-        update = ent
+        update = BSONDocument("$set" -> ent)
       )
   
   def getByDomain[T: BSONDocumentReader](domain: String): Future[List[T]] =
@@ -50,10 +50,11 @@ class MongoDB(collName: String) {
     M[BSONDocument]]): Future[M[BSONDocument]] =
     coll.distinct[BSONDocument, M](field)
   
-  def getAll(projection: BSONDocument)(implicit mat: Materializer): Source[BSONDocument, Future[State]] =
+  def getAll(projection: BSONDocument, selector: BSONDocument = BSONDocument.empty)(implicit mat: Materializer): Source[BSONDocument,
+    Future[State]] =
     coll
       .find(
-        selector = BSONDocument.empty,
+        selector,
         projection = projection
       )
       .cursor[BSONDocument]()
