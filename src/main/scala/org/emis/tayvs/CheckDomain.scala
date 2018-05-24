@@ -36,10 +36,11 @@ object CheckDomain extends App {
   }
   
   def getMailDomainData(domain: String): Future[MailDomainInfo] = {
-    retryOp(
+    retryOp {
+//      val startTime = System.currentTimeMillis()
       Future(mxChecher.doLookupMX(domain))
-        .andThen { case Success(v) if v.nonEmpty => println(v.head) }
-    )
+//        .andThen { case _ => println(s"$domain try take ${System.currentTimeMillis() - startTime}") }
+    }
       .transform((tr: Try[Array[String]]) =>
         tr
           .recover { case t: Throwable => println(domain, t); Array.empty[String] }
