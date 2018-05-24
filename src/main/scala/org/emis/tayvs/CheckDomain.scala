@@ -2,12 +2,15 @@ package org.emis.tayvs
 
 import akka.Done
 import akka.actor.ActorSystem
-import akka.stream.{ActorMaterializer, OverflowStrategy}
+import akka.event.Logging
+import akka.stream.{ActorMaterializer, Attributes, OverflowStrategy}
 import javax.naming.NameNotFoundException
 import reactivemongo.api.commands.UpdateWriteResult
 import reactivemongo.bson._
 import scala.annotation.tailrec
 import scala.concurrent.Future
+import scala.collection.immutable
+import scala.collection.breakOut
 import scala.util.{Failure, Success, Try}
 
 import org.emis.tayvs.dns.{DnsApi, DnsLookuperImpl}
@@ -33,51 +36,57 @@ object CheckDomain extends App {
   }
   
   def getMailDomainData(domain: String): Future[MailDomainInfo] = {
-    val mxRecord: Future[Array[String]] = retryOp(Future(mxChecher.doLookupMX(domain)))
-      .recover { case t: Throwable =>
-        println(t)
-        Array.empty
-      }
-    
-    val httpRecord: Future[Array[String]] = retryOp(Future(mxChecher.doLookupA("http://" + domain)))
-      .recover { case t: Throwable =>
-        println(t)
-        Array.empty
-      }
-    val httpsRecord: Future[Array[String]] = retryOp(Future(mxChecher.doLookupA("https://" + domain)))
-      .recover { case t: Throwable =>
-        println(t)
-        Array.empty
-      }
-    
-    httpRecord
-      .zipWith(httpsRecord)((ar1, ar2) => ar1 ++ ar2)
-      .zipWith(mxRecord)((httpDom, mx) => MailDomainInfo(domain, httpDom, mx))
+    retryOp(
+      Future(mxChecher.doLookupMX(domain))
+        .andThen { case Success(v) if v.nonEmpty => println(v.head) }
+    )
+      .transform((tr: Try[Array[String]]) =>
+        tr
+          .recover { case t: Throwable => println(domain, t); Array.empty[String] }
+          .map { mxRec => println(domain, mxRec.take(1).mkString("\n")); MailDomainInfo(domain, mxRecords = mxRec) }
+      )
   }
   
   val domainsDB = new MongoDB("domains2")
   
   domainsDB
-    .getAll(
+    .getAllBulk(
       BSONDocument("domain" -> 1),
       BSONDocument("mxRecords" -> BSONDocument("$exists" -> false)))
 //    .take(1)
-    .buffer(100000, OverflowStrategy.backpressure)
-    .mapAsyncUnordered(1000) { bson =>
-      Future(bson.getAs[BSONString]("domain"))
-        .flatMap(_.fold[Future[Option[UpdateWriteResult]]](Future.successful(None))(el =>
-          getMailDomainData(el.value)
-            .flatMap(el => domainsDB.update(("domain", el.domain), el))
-            .map(Some(_))
-        ))
-    }
+//    .collect{case Some(el) => el}
+    .mapConcat(iter => iter.map(_.getAs[BSONString]("domain").get.value).to[immutable.Iterable])
+//    .buffer(1000, OverflowStrategy.backpressure)
+//    .log("mapConcat")
+//    .withAttributes(Attributes.logLevels(
+//      onElement = Logging.WarningLevel,
+//      onFinish = Logging.InfoLevel,
+//      onFailure = Logging.ErrorLevel
+//    ))
+//    .mapAsyncUnordered(20) { bson =>
+//    Future(bson.getAs[BSONString]("domain").get.value)
+//      .andThen { case Success(domain) => println(s"$domain domain fetch") }
+//  }
+//    .async
+//    .buffer(1000, OverflowStrategy.backpressure)
+//    .mapAsyncUnordered(20) { el => getMailDomainData(el.value) }
+//    .log("DnsCheck")
+//    .withAttributes(Attributes.logLevels(
+//      onElement = Logging.WarningLevel,
+//      onFinish = Logging.InfoLevel,
+//      onFailure = Logging.ErrorLevel
+//    ))
+
 //    .collect { case bson: BSONDocument if bson.contains("domain") => bson.getAs[BSONString]("domain").get.value }
 //    .mapAsyncUnordered(1000)(getMailDomainData)
 //    .async
 //    .mapAsyncUnordered(1000)(el => domainsDB.update(("domain", el.domain), el))
+    .async
+    .mapAsyncUnordered(50)(getMailDomainData)
+    .mapAsyncUnordered(100)(el => domainsDB.update(("domain", el.domain), el))
     .grouped(100)
     .runForeach { res =>
-      val (okRes, failRes) = res.flatten.span(_.ok)
+      val (okRes, failRes) = res.span(_.ok)
       println("processed success %s, failed %s".format(okRes.size, failRes.size))
     }
     .andThen {
@@ -88,7 +97,7 @@ object CheckDomain extends App {
     }
 }
 
-case class MailDomainInfo(domain: String, aRecords: Array[String], mxRecords: Array[String])
+case class MailDomainInfo(domain: String, aRecords: Array[String] = Array.empty, mxRecords: Array[String] = Array.empty)
 object MailDomainInfo {
   //  implicit val exHandler: BSONDocumentHandler[Exception] = Macros.handler[Exception]
 //  implicit val trySHandler: BSONDocumentHandler[Success[Array[String]]] = Macros.handler[Success[Array[String]]]

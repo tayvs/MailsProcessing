@@ -50,7 +50,8 @@ class MongoDB(collName: String) {
     M[BSONDocument]]): Future[M[BSONDocument]] =
     coll.distinct[BSONDocument, M](field)
   
-  def getAll(projection: BSONDocument, selector: BSONDocument = BSONDocument.empty)(implicit mat: Materializer): Source[BSONDocument,
+  def getAll(projection: BSONDocument, selector: BSONDocument = BSONDocument.empty)(implicit mat: Materializer)
+  : Source[BSONDocument,
     Future[State]] =
     coll
       .find(
@@ -59,6 +60,16 @@ class MongoDB(collName: String) {
       )
       .cursor[BSONDocument]()
       .documentSource()
+  
+  def getAllBulk(projection: BSONDocument, selector: BSONDocument = BSONDocument.empty)(implicit mat: Materializer) =
+    coll
+      .find(
+        selector,
+        projection = projection
+      )
+      .batchSize(Int.MaxValue)
+      .cursor[BSONDocument]()
+      .bulkSource()
   
   def makeIndex(fields: String*): Future[Boolean] = {
     coll.indexesManager.ensure(Index(fields.map(field => (field, IndexType.Text))))
