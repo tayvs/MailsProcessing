@@ -11,21 +11,24 @@ import scala.annotation.tailrec
 import scala.concurrent.Future
 import scala.collection.immutable
 import scala.collection.breakOut
+import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 
 import org.emis.tayvs.dns.{DnsApi, DnsLookuperImpl}
+import org.emis.tayvs.Utils.FutureExtensions
 
 object CheckDomain extends App {
   
   implicit val system = ActorSystem("DomainInfo")
   implicit val mat = ActorMaterializer()
-  implicit val disp = system.dispatcher
+  implicit val disp = system.dispatchers.lookup("my-dispatcher")
+  implicit val timeout = 200 millis
   
   val mxChecher = new DnsApi(new DnsLookuperImpl)
   val checkDomain: String => Future[Option[String]] = domain => Future(DomainResponse.endDomain(domain))
   
-  def retryOp[T](op: => Future[T], tries: Int = 3, exOpt: Option[Throwable] = None): Future[T] = {
-    op
+  def retryOp[T](op: () => Future[T], tries: Int = 5, exOpt: Option[Throwable] = None): Future[T] = {
+    op()
       .recoverWith {
         case ex: NameNotFoundException =>
           Future.failed(ex)
@@ -36,15 +39,19 @@ object CheckDomain extends App {
   }
   
   def getMailDomainData(domain: String): Future[MailDomainInfo] = {
-    retryOp {
+    retryOp { () =>
 //      val startTime = System.currentTimeMillis()
       Future(mxChecher.doLookupMX(domain))
+//        .withTimeout(new Exception(s"lookup of $domain mx record timeout"))
 //        .andThen { case _ => println(s"$domain try take ${System.currentTimeMillis() - startTime}") }
     }
       .transform((tr: Try[Array[String]]) =>
         tr
-          .recover { case t: Throwable => println(domain, t); Array.empty[String] }
-          .map { mxRec => println(domain, mxRec.take(1).mkString("\n")); MailDomainInfo(domain, mxRecords = mxRec) }
+          .recover {
+            case _:NameNotFoundException => Array.empty[String]
+            case t: Throwable => println(domain, t); Array.empty[String]
+          }
+          .map { mxRec => MailDomainInfo(domain, mxRecords = mxRec) }
       )
   }
   
@@ -53,11 +60,11 @@ object CheckDomain extends App {
   domainsDB
     .getAllBulk(
       BSONDocument("domain" -> 1),
-      BSONDocument("mxRecords" -> BSONDocument("$exists" -> false)))
+      BSONDocument("mxRecords" -> Array.empty[String]))
 //    .take(1)
 //    .collect{case Some(el) => el}
     .mapConcat(iter => iter.map(_.getAs[BSONString]("domain").get.value).to[immutable.Iterable])
-//    .buffer(1000, OverflowStrategy.backpressure)
+    .buffer(10000, OverflowStrategy.backpressure)
 //    .log("mapConcat")
 //    .withAttributes(Attributes.logLevels(
 //      onElement = Logging.WarningLevel,
@@ -77,14 +84,14 @@ object CheckDomain extends App {
 //      onFinish = Logging.InfoLevel,
 //      onFailure = Logging.ErrorLevel
 //    ))
-
 //    .collect { case bson: BSONDocument if bson.contains("domain") => bson.getAs[BSONString]("domain").get.value }
 //    .mapAsyncUnordered(1000)(getMailDomainData)
 //    .async
 //    .mapAsyncUnordered(1000)(el => domainsDB.update(("domain", el.domain), el))
     .async
-    .mapAsyncUnordered(50)(getMailDomainData)
-    .mapAsyncUnordered(100)(el => domainsDB.update(("domain", el.domain), el))
+    .mapAsyncUnordered(250)(getMailDomainData)
+    .filter(_.aRecords.nonEmpty)
+    .mapAsyncUnordered(250)(el => domainsDB.update(("domain", el.domain), el))
     .grouped(100)
     .runForeach { res =>
       val (okRes, failRes) = res.span(_.ok)
