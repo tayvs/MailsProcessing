@@ -22,8 +22,10 @@ class AcctListenerV2Test(_system: ActorSystem) extends TestKit(_system)
     }
   }
   
+  class TestedAcctListener {
+    val acctListener = TestFSMRef(new AcctListenerV2())
+  }
+  
 }
 
-class TestedAcctListener {
-  val acctListener = TestFSMRef(new AcctListenerV2())
-}
+
