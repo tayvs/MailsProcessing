@@ -11,5 +11,4 @@ gen### Scala template
 *.log
 
 project/target/
-src/test/
 target/
