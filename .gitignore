@@ -10,10 +10,6 @@ gen### Scala template
 *.class
 *.log
 
-.idea/
 project/target/
-src/main/resources/Mailable_2017_new_oth_20170807_US_9.csv
-src/main/resources/Mailable_2017_new_oth_20170807_US_New.csv
-src/main/scala/org/emis/tayvs/spam/
 src/test/
 target/

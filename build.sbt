@@ -59,7 +59,11 @@ libraryDependencies ++= {
     //logging
     "ch.qos.logback"         % "logback-classic"          % "1.2.3",
     "com.typesafe.akka"      %% "akka-slf4j"              % akkaV,
-    "org.codehaus.janino"    %  "janino"                  % "2.7.8"
+    "org.codehaus.janino"    %  "janino"                  % "2.7.8",
+  
+    "com.typesafe.akka"      %% "akka-testkit"            % "2.5.13" % Test,
+    "org.scalatest"          %% "scalatest"               % "3.0.5" % Test,
+    "org.scalactic"          %% "scalactic"               % "3.0.5"
   )
 
 }
